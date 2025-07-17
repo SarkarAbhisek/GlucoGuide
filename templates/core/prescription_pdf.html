@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GlucoGuide Prescription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .title {
+            color: #e74c3c;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .tagline {
+            font-style: italic;
+            color: #3498db;
+        }
+        .section {
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .patient-info {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .patient-info td {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .risk-score {
+            font-weight: bold;
+        }
+        .low-risk {
+            color: #27ae60;
+        }
+        .moderate-risk {
+            color: #f39c12;
+        }
+        .high-risk {
+            color: #e74c3c;
+        }
+        .recommendations {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">GlucoGuide</div>
+        <div class="tagline">Know your risk, take control</div>
+        <div>Prescription Report</div>
+        <div>Date: {% now "F j, Y" %}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Patient Information</div>
+        <table class="patient-info">
+            <tr>
+                <td width="25%">Name:</td>
+                <td>{{ profile.name }}</td>
+            </tr>
+            <tr>
+                <td>Age:</td>
+                <td>{{ profile.age }}</td>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td>{{ profile.get_gender_display }}</td>
+            </tr>
+            <tr>
+                <td>Height:</td>
+                <td>{{ profile.height }} m</td>
+            </tr>
+            <tr>
+                <td>Weight:</td>
+                <td>{{ profile.weight }} kg</td>
+            </tr>
+            <tr>
+                <td>BMI:</td>
+                <td>{{ risk_assessment.bmi|floatformat:1 }}
+                    {% if risk_assessment.bmi < 18.5 %}
+                        (Underweight)
+                    {% elif risk_assessment.bmi < 25 %}
+                        (Healthy weight)
+                    {% elif risk_assessment.bmi < 30 %}
+                        (Overweight)
+                    {% elif risk_assessment.bmi < 35 %}
+                        (Obesity class I)
+                    {% elif risk_assessment.bmi < 40 %}
+                        (Obesity class II)
+                    {% else %}
+                        (Severe obesity)
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {% if blood_test %}
+    <div class="section">
+        <div class="section-title">Blood Test Results</div>
+        <table class="patient-info">
+            {% if blood_test.fasting_glucose %}
+            <tr>
+                <td width="40%">Fasting Plasma Glucose (mg/dl):</td>
+                <td>{{ blood_test.fasting_glucose }}
+                    {% if blood_test.fasting_glucose < 100 %}
+                        <span class="low-risk">(No diabetes)</span>
+                    {% elif blood_test.fasting_glucose < 126 %}
+                        <span class="moderate-risk">(Higher risk of prediabetes)</span>
+                    {% else %}
+                        <span class="high-risk">(Higher risk for diabetes)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            
+            {% if blood_test.post_prandial_glucose %}
+            <tr>
+                <td>Post Prandial Plasma Glucose (mg/dl):</td>
+                <td>{{ blood_test.post_prandial_glucose }}
+                    {% if blood_test.post_prandial_glucose < 140 %}
+                        <span class="low-risk">(No diabetes)</span>
+                    {% elif blood_test.post_prandial_glucose < 199 %}
+                        <span class="moderate-risk">(Higher risk of prediabetes)</span>
+                    {% else %}
+                        <span class="high-risk">(Higher risk for diabetes)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            
+            {% if blood_test.hba1c %}
+            <tr>
+                <td>HbA1c%:</td>
+                <td>{{ blood_test.hba1c }}
+                    {% if blood_test.hba1c < 5.7 %}
+                        <span class="low-risk">(Optimal and lower diabetes risk)</span>
+                    {% elif blood_test.hba1c < 6.5 %}
+                        <span class="moderate-risk">(Elevated risk of prediabetes)</span>
+                    {% else %}
+                        <span class="high-risk">(High risk for diabetes)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            
+            {% if blood_test.random_glucose %}
+            <tr>
+                <td>Random Plasma Glucose (mg/dl):</td>
+                <td>{{ blood_test.random_glucose }}
+                    {% if blood_test.random_glucose < 140 %}
+                        <span class="low-risk">(No diabetes)</span>
+                    {% elif blood_test.random_glucose < 199 %}
+                        <span class="moderate-risk">(Higher risk of prediabetes)</span>
+                    {% else %}
+                        <span class="high-risk">(Higher risk for diabetes)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Risk Assessment Scores</div>
+        <table class="patient-info">
+            <tr>
+                <td width="40%">IDRS Score:</td>
+                <td>{{ risk_assessment.idrs_score }}
+                    {% if risk_assessment.idrs_score >= 60 %}
+                        <span class="high-risk">(Very high risk of having diabetes)</span>
+                    {% elif risk_assessment.idrs_score >= 30 %}
+                        <span class="moderate-risk">(Moderate risk of diabetes)</span>
+                    {% else %}
+                        <span class="low-risk">(Low risk of diabetes)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>ADA Score:</td>
+                <td>{{ risk_assessment.ada_score }}
+                    {% if risk_assessment.ada_score >= 5 %}
+                        <span class="high-risk">(Increased risk of type 2 diabetes)</span>
+                    {% elif risk_assessment.ada_score == 4 %}
+                        <span class="moderate-risk">(Prediabetes risk present)</span>
+                    {% else %}
+                        <span class="low-risk">(ADA score indicates safety)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>FINDRISC Score:</td>
+                <td>{{ risk_assessment.findrisc_score }}
+                    {% if risk_assessment.findrisc_score < 7 %}
+                        <span class="low-risk">(Low risk: 1 in 100 will develop the disease)</span>
+                    {% elif risk_assessment.findrisc_score <= 11 %}
+                        <span class="moderate-risk">(Slightly elevated risk: 1 in 25 will develop the disease)</span>
+                    {% elif risk_assessment.findrisc_score <= 14 %}
+                        <span class="moderate-risk">(Moderate risk: 1 in 6 will develop the disease)</span>
+                    {% elif risk_assessment.findrisc_score <= 20 %}
+                        <span class="high-risk">(High risk: 1 in 3 will develop the disease)</span>
+                    {% else %}
+                        <span class="high-risk">(Very high risk: 1 in 2 will develop the disease)</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Recommendations</div>
+        <div class="recommendations">
+            <p><strong>Based on your assessment results, we recommend:</strong></p>
+            <ul>
+                {% if risk_assessment.bmi >= 23 %}
+                    <li>Weight management through a balanced diet and regular exercise to reduce your BMI.</li>
+                {% endif %}
+                
+                {% if risk_assessment.physical_activity == 'c' %}
+                    <li>Increase physical activity to at least 30 minutes per day, 5 days a week.</li>
+                {% endif %}
+                
+                {% if not risk_assessment.fruit_intake %}
+                    <li>Increase daily intake of fruits and vegetables to at least 5 servings per day.</li>
+                {% endif %}
+                
+                {% if risk_assessment.hypertension %}
+                    <li>Regular monitoring of blood pressure and consultation with a healthcare provider for management.</li>
+                {% endif %}
+                
+                {% if risk_assessment.idrs_score >= 60 or risk_assessment.findrisc_score >= 15 %}
+                    <li>Consult with a healthcare provider for further evaluation, possibly including an Oral Glucose Tolerance Test (OGTT).</li>
+                {% elif risk_assessment.idrs_score >= 30 or risk_assessment.findrisc_score >= 12 %}
+                    <li>Schedule a checkup with your healthcare provider to discuss your diabetes risk.</li>
+                {% endif %}
+                
+                {% if blood_test and blood_test.fasting_glucose >= 126 or blood_test.post_prandial_glucose >= 200 or blood_test.hba1c >= 6.5 %}
+                    <li>Consult with a healthcare provider immediately as your blood sugar levels indicate possible diabetes.</li>
+                {% elif blood_test and blood_test.fasting_glucose >= 100 or blood_test.post_prandial_glucose >= 140 or blood_test.hba1c >= 5.7 %}
+                    <li>Regular monitoring of blood sugar levels as you may be at risk for prediabetes.</li>
+                {% endif %}
+            </ul>
+            
+            <p><strong>General Health Advice:</strong></p>
+            <ul>
+                <li>Maintain a healthy diet rich in whole grains, fruits, vegetables, and lean proteins.</li>
+                <li>Aim for at least 150 minutes of moderate-intensity exercise per week.</li>
+                <li>Get adequate sleep (7-9 hours per night).</li>
+                <li>Manage stress through relaxation techniques like meditation or yoga.</li>
+                <li>Avoid tobacco and limit alcohol consumption.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This report is generated by GlucoGuide for informational purposes only and is not a substitute for professional medical advice.</p>
+        <p>© {% now "Y" %} GlucoGuide - Know your risk, take control</p>
+    </div>
+</body>
+</html>

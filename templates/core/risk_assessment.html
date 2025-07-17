@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Risk Assessment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Risk Assessment</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.physical_activity.id_for_label }}" class="form-label">Physical Activity</label>
+                        {{ form.physical_activity }}
+                        {{ form.physical_activity.errors }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.family_history.id_for_label }}" class="form-label">Family Diabetes History</label>
+                        {{ form.family_history }}
+                        {{ form.family_history.errors }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.waist.id_for_label }}" class="form-label">Waist Circumference (cm)</label>
+                        {{ form.waist }}
+                        {{ form.waist.errors }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.hypertension.id_for_label }}" class="form-label">Hypertension</label>
+                        {{ form.hypertension }}
+                        {{ form.hypertension.errors }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.high_blood_sugar_med.id_for_label }}" class="form-label">Medication for High Blood Sugar</label>
+                        {{ form.high_blood_sugar_med }}
+                        {{ form.high_blood_sugar_med.errors }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.fruit_intake.id_for_label }}" class="form-label">Vegetable/Fruit Intake</label>
+                        {{ form.fruit_intake }}
+                        {{ form.fruit_intake.errors }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.high_blood_glucose.id_for_label }}" class="form-label">High Blood Glucose History</label>
+                        {{ form.high_blood_glucose }}
+                        {{ form.high_blood_glucose.errors }}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator me-2"></i> Calculate My Risk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

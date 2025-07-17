@@ -1,0 +1,204 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="text-center mb-5">
+            <h2 class="display-4" style="color: #e74c3c; font-family: 'Montserrat', sans-serif;">GlucoGuide</h2>
+            <p class="tagline lead">Know your risk, take control</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Personal Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ profile.name }}</p>
+                        <p><strong>Age:</strong> {{ profile.age }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Height:</strong> {{ profile.height }} m</p>
+                        <p><strong>Weight:</strong> {{ profile.weight }} kg</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <p><strong>BMI:</strong> {{ risk_assessment.bmi|floatformat:1 }}</p>
+                        {% if risk_assessment.bmi %}
+                            <p>
+                                {% if risk_assessment.bmi < 18.5 %}
+                                    <span class="badge bg-info">Underweight</span>
+                                {% elif risk_assessment.bmi < 25 %}
+                                    <span class="badge bg-success">Healthy weight</span>
+                                {% elif risk_assessment.bmi < 30 %}
+                                    <span class="badge bg-warning">Overweight</span>
+                                {% elif risk_assessment.bmi < 35 %}
+                                    <span class="badge bg-danger">Obesity class I</span>
+                                {% elif risk_assessment.bmi < 40 %}
+                                    <span class="badge bg-danger">Obesity class II</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Severe obesity</span>
+                                {% endif %}
+                                {% if risk_assessment.bmi >= 23 %}
+                                    <span class="text-danger">You have a high BMI which can lead to diabetes.</span>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if blood_test %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Blood Sugar Test Report</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if blood_test.fasting_glucose %}
+                    <div class="col-md-6 mb-3">
+                        <p><strong>Fasting Plasma Glucose (mg/dl):</strong> {{ blood_test.fasting_glucose }}</p>
+                        <p>
+                            {% if blood_test.fasting_glucose < 100 %}
+                                <span class="badge bg-success">No diabetes</span>
+                            {% elif blood_test.fasting_glucose < 126 %}
+                                <span class="badge bg-warning">Higher risk of prediabetes</span>
+                            {% else %}
+                                <span class="badge bg-danger">Higher risk for diabetes</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if blood_test.post_prandial_glucose %}
+                    <div class="col-md-6 mb-3">
+                        <p><strong>Post Prandial Plasma Glucose (mg/dl):</strong> {{ blood_test.post_prandial_glucose }}</p>
+                        <p>
+                            {% if blood_test.post_prandial_glucose < 140 %}
+                                <span class="badge bg-success">No diabetes</span>
+                            {% elif blood_test.post_prandial_glucose < 199 %}
+                                <span class="badge bg-warning">Higher risk of prediabetes</span>
+                            {% else %}
+                                <span class="badge bg-danger">Higher risk for diabetes</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if blood_test.hba1c %}
+                    <div class="col-md-6 mb-3">
+                        <p><strong>HbA1c%:</strong> {{ blood_test.hba1c }}</p>
+                        <p>
+                            {% if blood_test.hba1c < 5.7 %}
+                                <span class="badge bg-success">Optimal and lower diabetes risk</span>
+                            {% elif blood_test.hba1c < 6.5 %}
+                                <span class="badge bg-warning">Elevated risk of prediabetes</span>
+                            {% else %}
+                                <span class="badge bg-danger">High risk for diabetes</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if blood_test.random_glucose %}
+                    <div class="col-md-6 mb-3">
+                        <p><strong>Random Plasma Glucose (mg/dl):</strong> {{ blood_test.random_glucose }}</p>
+                        <p>
+                            {% if blood_test.random_glucose < 140 %}
+                                <span class="badge bg-success">No diabetes</span>
+                            {% elif blood_test.random_glucose < 199 %}
+                                <span class="badge bg-warning">Higher risk of prediabetes</span>
+                            {% else %}
+                                <span class="badge bg-danger">Higher risk for diabetes</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Diabetes Risk Scores</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card result-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">IDRS Score</h5>
+                                <p class="risk-score">{{ risk_assessment.idrs_score }}</p>
+                                <p class="card-text">
+                                    {% if risk_assessment.idrs_score >= 60 %}
+                                        <span class="high-risk">Very high risk of having diabetes. Oral Glucose Tolerance Test (OGTT) is recommended.</span>
+                                    {% elif risk_assessment.idrs_score >= 30 %}
+                                        <span class="moderate-risk">Moderate risk of diabetes. A checkup is recommended.</span>
+                                    {% else %}
+                                        <span class="low-risk">Low risk of diabetes.</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card result-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">ADA Score</h5>
+                                <p class="risk-score">{{ risk_assessment.ada_score }}</p>
+                                <p class="card-text">
+                                    {% if risk_assessment.ada_score >= 5 %}
+                                        <span class="high-risk">Increased risk of type 2 diabetes.</span>
+                                    {% elif risk_assessment.ada_score == 4 %}
+                                        <span class="moderate-risk">Prediabetes risk present.</span>
+                                    {% else %}
+                                        <span class="low-risk">ADA score indicates safety.</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card result-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">FINDRISC Score</h5>
+                                <p class="risk-score">{{ risk_assessment.findrisc_score }}</p>
+                                <p class="card-text">
+                                    {% if risk_assessment.findrisc_score < 7 %}
+                                        <span class="low-risk">Low risk: 1 in 100 will develop the disease.</span>
+                                    {% elif risk_assessment.findrisc_score <= 11 %}
+                                        <span class="moderate-risk">Slightly elevated risk: 1 in 25 will develop the disease.</span>
+                                    {% elif risk_assessment.findrisc_score <= 14 %}
+                                        <span class="moderate-risk">Moderate risk: 1 in 6 will develop the disease.</span>
+                                    {% elif risk_assessment.findrisc_score <= 20 %}
+                                        <span class="high-risk">High risk: 1 in 3 will develop the disease.</span>
+                                    {% else %}
+                                        <span class="high-risk">Very high risk: 1 in 2 will develop the disease.</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'generate_pdf' %}" class="btn btn-danger">
+                <i class="fas fa-file-pdf me-2"></i> Download Prescription
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-redo me-2"></i> Take Another Test
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
