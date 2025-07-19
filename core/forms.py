@@ -1,5 +1,6 @@
 from django import forms
 from .models import UserProfile, BloodTest, RiskAssessment
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -7,10 +8,23 @@ class UserProfileForm(forms.ModelForm):
         fields = ['name', 'age', 'gender', 'height', 'weight']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control'}),
+            'age': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'max': 120
+            }),
             'gender': forms.Select(attrs={'class': 'form-control'}),
-            'height': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'weight': forms.NumberInput(attrs={'class': 'form-control'}),
+            'height': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': 0.5,
+                'max': 2.5
+            }),
+            'weight': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 20,
+                'max': 300
+            }),
         }
 
 class BloodTestForm(forms.ModelForm):
@@ -18,10 +32,28 @@ class BloodTestForm(forms.ModelForm):
         model = BloodTest
         fields = ['fasting_glucose', 'post_prandial_glucose', 'hba1c', 'random_glucose']
         widgets = {
-            'fasting_glucose': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter value'}),
-            'post_prandial_glucose': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter value'}),
-            'hba1c': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter value'}),
-            'random_glucose': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter value'}),
+            'fasting_glucose': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter value',
+                'min': 0
+            }),
+            'post_prandial_glucose': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter value',
+                'min': 0
+            }),
+            'hba1c': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter value',
+                'min': 0,
+                'max': 20,
+                'step': '0.1'
+            }),
+            'random_glucose': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter value',
+                'min': 0
+            }),
         }
 
 class RiskAssessmentForm(forms.ModelForm):
@@ -39,15 +71,29 @@ class RiskAssessmentForm(forms.ModelForm):
         ('e', 'Both parents'),
     ]
     
-    physical_activity = forms.ChoiceField(choices=PHYSICAL_ACTIVITY_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-    family_history = forms.ChoiceField(choices=FAMILY_HISTORY_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-    waist = forms.FloatField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
-    hypertension = forms.BooleanField(widget=forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}), required=False)
-    high_blood_sugar_med = forms.BooleanField(widget=forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}), required=False)
-    fruit_intake = forms.BooleanField(widget=forms.Select(choices=[(True, 'Everyday'), (False, 'Not Everyday')], attrs={'class': 'form-control'}), required=False)
-    high_blood_glucose = forms.BooleanField(widget=forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}), required=False)
+    physical_activity = forms.ChoiceField(
+        choices=PHYSICAL_ACTIVITY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    family_history = forms.ChoiceField(
+        choices=FAMILY_HISTORY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    waist = forms.FloatField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': 50,
+            'max': 200
+        })
+    )
     
     class Meta:
         model = RiskAssessment
         fields = ['physical_activity', 'family_history', 'waist', 'hypertension', 
                  'high_blood_sugar_med', 'fruit_intake', 'high_blood_glucose']
+        widgets = {
+            'hypertension': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}),
+            'high_blood_sugar_med': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}),
+            'fruit_intake': forms.Select(choices=[(True, 'Everyday'), (False, 'Not Everyday')], attrs={'class': 'form-control'}),
+            'high_blood_glucose': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-control'}),
+        }
